@@ -78,10 +78,7 @@ contract DeploymentResolver is SchemaResolver {
         bytes32 spellAttestationId = SpellResolverAbstract(spellAttester.schemaNameToResolver("spell")).payloadIdHashToAttestationId(payloadIdHash);
         require(spellAttestationId != "", "DeploymentResolver/unknown-payload-id");
 
-        // Ensure payloadHash matches hash of the payloadAddress
-        require(payloadHash == payloadAddress.codehash, "DeploymentResolver/incorrect-payload-hash");
-
-        // Ensure payloadAddress isn't empty
+        // Ensure payloadHash isn't of empty address
         require(payloadHash != keccak256(""), "DeploymentResolver/empty-payload-address");
 
         // Ensure attester is part of the payloadId Spell
