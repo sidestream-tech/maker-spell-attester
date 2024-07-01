@@ -21,7 +21,7 @@ The end user of the proposed protocol have access to 3 [EAS](https://attest.org/
     - Ensures crafter attests spell before reviewers
     - Ensures reviewers attest the same payload address as crafter
     - Ensures reviewers attest the same payload hash as crafter
-    - ~~Ensures provided hash matches codehash of the address~~ (temporary disabled to enable cross-chain attestations)
+    - ~~Ensures provided hash matches codehash of the address~~ (temporary disabled to allow cross-chain attestations)
 
 The process of using provided attestations is therefore as follows:
 1. Once: admin attests Identity of all known participants
