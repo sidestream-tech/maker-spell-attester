@@ -29,6 +29,9 @@ contract DeploymentResolver is SchemaResolver {
     /// @notice Mapping between hashed payloadId strings, hashed userPseudonym and the attested payload address.
     mapping (bytes32 payloadIdHash => mapping (bytes32 pseudonymHash => address payloadAddress)) public payloadIdHashToPseudonymHashToPayloadAddress;
 
+    /// @notice Mapping between hashed payloadId strings, hashed userPseudonym and the attested payload hash.
+    mapping (bytes32 payloadIdHash => mapping (bytes32 pseudonymHash => bytes32 payloadHash)) public payloadIdHashToPseudonymHashToPayloadHash;
+
     // --- Events ---
 
     /// @notice Emitted when a new Deployment is attested.
@@ -78,19 +81,17 @@ contract DeploymentResolver is SchemaResolver {
         bytes32 spellAttestationId = SpellResolverAbstract(spellAttester.schemaNameToResolver("spell")).payloadIdHashToAttestationId(payloadIdHash);
         require(spellAttestationId != "", "DeploymentResolver/unknown-payload-id");
 
-        // Ensure payloadHash isn't of empty address
-        require(payloadHash != keccak256(""), "DeploymentResolver/empty-payload-address");
-
-        // Ensure attester is part of the payloadId Spell
         (, string memory crafter, string memory reviewerA, string memory reviewerB) = abi.decode(
             _eas.getAttestation(spellAttestationId).data,
             (string, string, string, string)
         );
 
         {
+            // Ensure only relevant Spell attestation members can attest
+            bytes32 crafterPseudonymHash = keccak256(abi.encodePacked(crafter));
             bytes32 attesterPseudonymHash = IdentityResolverAbstract(spellAttester.schemaNameToResolver("identity")).addressToPseudonymHash(attestation.attester);
             require(
-                attesterPseudonymHash == keccak256(abi.encodePacked(crafter)) ||
+                attesterPseudonymHash == crafterPseudonymHash ||
                 attesterPseudonymHash == keccak256(abi.encodePacked(reviewerA)) ||
                 attesterPseudonymHash == keccak256(abi.encodePacked(reviewerB)),
             "DeploymentResolver/not-spell-member");
@@ -98,14 +99,25 @@ contract DeploymentResolver is SchemaResolver {
             // Ensure only one attestation is possible per payloadId
             require(payloadIdHashToPseudonymHashToPayloadAddress[payloadIdHash][attesterPseudonymHash] == address(0), "DeploymentResolver/already-attested-by-you");
             payloadIdHashToPseudonymHashToPayloadAddress[payloadIdHash][attesterPseudonymHash] = payloadAddress;
+
+            // Ensure crafter already attested this payloadId
+            address craftersPayloadAddress = payloadIdHashToPseudonymHashToPayloadAddress[payloadIdHash][crafterPseudonymHash];
+            require(craftersPayloadAddress != address(0), "DeploymentResolver/not-crafter-first");
+
+            // Ensure payloadAddress is the same as provided by the crafter
+            require(payloadAddress == craftersPayloadAddress, "DeploymentResolver/unknown-payload-address");
+
+            // Ensure payloadHash matches hash of the payloadAddress
+            // TODO re-enable the check before mainnnet deployment
+            // require(payloadHash == payloadAddress.codehash, "DeploymentResolver/incorrect-payload-hash");
+
+            // Ensure payloadHash isn't of empty address
+            require(payloadHash != keccak256(""), "DeploymentResolver/empty-payload-hash");
+
+            // Ensure payloadHash is the same as provided by the crafter
+            payloadIdHashToPseudonymHashToPayloadHash[payloadIdHash][attesterPseudonymHash] = payloadHash;
+            require(payloadHash == payloadIdHashToPseudonymHashToPayloadHash[payloadIdHash][crafterPseudonymHash], "DeploymentResolver/unknown-payload-hash");
         }
-
-        // Ensure crafter already attested this payloadId
-        address craftersPayloadAddress = payloadIdHashToPseudonymHashToPayloadAddress[payloadIdHash][keccak256(abi.encodePacked(crafter))];
-        require(craftersPayloadAddress != address(0), "DeploymentResolver/not-crafter-first");
-
-        // Ensure payloadAddress is the same as provided by the crafter
-        require(payloadAddress == craftersPayloadAddress, "DeploymentResolver/unknown-payload-address");
 
         emit Created(attestation.uid, attestation.attester, payloadIdHash);
         return true;
@@ -121,6 +133,7 @@ contract DeploymentResolver is SchemaResolver {
         bytes32 attesterPseudonymHash = IdentityResolverAbstract(spellAttester.schemaNameToResolver("identity")).addressToPseudonymHash(attestation.attester);
         bytes32 payloadIdHash = keccak256(abi.encodePacked(payloadId));
         payloadIdHashToPseudonymHashToPayloadAddress[payloadIdHash][attesterPseudonymHash] = address(0);
+        payloadIdHashToPseudonymHashToPayloadHash[payloadIdHash][attesterPseudonymHash] = "";
 
         emit Removed(attestation.uid, attestation.attester, payloadIdHash);
         return true;

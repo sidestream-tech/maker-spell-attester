@@ -16,11 +16,12 @@ The end user of the proposed protocol have access to 3 [EAS](https://attest.org/
 - Deployment: attests deployed spell contract (using name of the spell, address and hash of the spell)
     - Ensures spell name have relevant non-revoked Spell attestation
     - Ensures provided address is not empty
-    - Ensures provided hash matches codehash of the address
     - Ensures user attesting Deployment is the Spell member
     - Ensures a single attestation per user per spell
     - Ensures crafter attests spell before reviewers
     - Ensures reviewers attest the same payload address as crafter
+    - Ensures reviewers attest the same payload hash as crafter
+    - ~~Ensures provided hash matches codehash of the address~~ (temporary disabled to enable cross-chain attestations)
 
 The process of using provided attestations is therefore as follows:
 1. Once: admin attests Identity of all known participants
