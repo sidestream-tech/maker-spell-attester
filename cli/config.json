@@ -1,0 +1,10 @@
+{
+    "1": {
+        "spellAttesterAddress": "",
+        "easScannerUrl": "https://easscan.org/"
+    },
+    "11155111": {
+        "spellAttesterAddress": "0xCe08e30B8a59A95a59b0Cc25fFa50909a3526d7e",
+        "easScannerUrl": "https://sepolia.easscan.org/"
+    }
+}

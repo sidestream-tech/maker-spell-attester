@@ -1,0 +1,43 @@
+{
+  "name": "spell-attester",
+  "version": "0.0.8",
+  "description": "CLI for the Maker Spell Attestation contracts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sidestream-tech/maker-spell-attestation.git"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "bin": {
+    "spell-attester": "index.js"
+  },
+  "scripts": {
+    "start": "node .",
+    "test": "npx hardhat test **/*.test.js",
+    "reset": "npx hardhat clean",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "keywords": [
+    "cli",
+    "maker",
+    "spell",
+    "attestation"
+  ],
+  "author": "Dai Foundation <www.daifoundation.org>",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@ethereum-attestation-service/eas-sdk": "^0.29.1",
+    "dotenv": "^16.4.5",
+    "ethers": "^5.7.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.21.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "chai": "^4.4.1",
+    "chai-as-promised": "^8.0.0",
+    "chai-subset": "^1.6.0",
+    "eslint": "^8.57.0"
+  }
+}
