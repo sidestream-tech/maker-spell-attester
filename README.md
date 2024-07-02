@@ -16,11 +16,12 @@ The end user of the proposed protocol have access to 3 [EAS](https://attest.org/
 - Deployment: attests deployed spell contract (using name of the spell, address and hash of the spell)
     - Ensures spell name have relevant non-revoked Spell attestation
     - Ensures provided address is not empty
-    - Ensures provided hash matches codehash of the address
     - Ensures user attesting Deployment is the Spell member
     - Ensures a single attestation per user per spell
     - Ensures crafter attests spell before reviewers
     - Ensures reviewers attest the same payload address as crafter
+    - Ensures reviewers attest the same payload hash as crafter
+    - ~~Ensures provided hash matches codehash of the address~~ (temporary disabled to allow cross-chain attestations)
 
 The process of using provided attestations is therefore as follows:
 1. Once: admin attests Identity of all known participants
@@ -68,10 +69,10 @@ Latest addresses are always available inside automatically generated jsons in th
 Not yet deployed
 
 ### Sepolia testnet (chain id `11155111`)
-- Identity schema [0x552aecaa79fa923e8fb10663bd0d7ad534c2d015b114a2569dd15ca5b2c99831](https://sepolia.easscan.org/attestation/attestWithSchema/0x552aecaa79fa923e8fb10663bd0d7ad534c2d015b114a2569dd15ca5b2c99831)
-- Spell schema [0x46f05becf2b24c569a380ff56b8aa1f48ee05c8d19415eb52676010c171928c2](https://sepolia.easscan.org/attestation/attestWithSchema/0x46f05becf2b24c569a380ff56b8aa1f48ee05c8d19415eb52676010c171928c2)
-- Deployment schema [0x316f7075206e477729d0dfe0a3827e42593b22b50910682ca1d288d5ed80801f](https://sepolia.easscan.org/attestation/attestWithSchema/0x316f7075206e477729d0dfe0a3827e42593b22b50910682ca1d288d5ed80801f)
-- SpellAttester contract [0xCe08e30B8a59A95a59b0Cc25fFa50909a3526d7e](https://sepolia.etherscan.io/address/0xCe08e30B8a59A95a59b0Cc25fFa50909a3526d7e#code)
+- Identity schema [0xe795824a20ff0d4f65af182918f61b949888b5f9c09956f96f109acab86659dd](https://sepolia.easscan.org/attestation/attestWithSchema/0xe795824a20ff0d4f65af182918f61b949888b5f9c09956f96f109acab86659dd)
+- Spell schema [0x1b78cf62df68a14a797fce7a6b6bd8b973776561dfe6ced23f711f95b0b61613](https://sepolia.easscan.org/attestation/attestWithSchema/0x1b78cf62df68a14a797fce7a6b6bd8b973776561dfe6ced23f711f95b0b61613)
+- Deployment schema [0x356f90f8ad87abb2c6eabfe9bbdd921b8c08787ee38309f0c4537d35ed6f062a](https://sepolia.easscan.org/attestation/attestWithSchema/0x356f90f8ad87abb2c6eabfe9bbdd921b8c08787ee38309f0c4537d35ed6f062a)
+- SpellAttester contract [0x7cbb13d6597fafb0c36b7b9296662fad78cc3f82](https://sepolia.etherscan.io/address/0x7cbb13d6597fafb0c36b7b9296662fad78cc3f82#code)
 
 ## Development
 
