@@ -6,8 +6,8 @@ import ethers from 'ethers';
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
-export const envPath = join(__dirname, '..', '.env');
 export const configPath = join(__dirname, '..', 'config.json');
+export const envPath = join(process.cwd(), '.env');
 
 export const getConfig = async function (signerOrProvider) {
     const networkData = await signerOrProvider.getNetwork();
