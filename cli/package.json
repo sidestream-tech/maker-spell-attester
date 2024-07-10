@@ -1,6 +1,6 @@
 {
   "name": "spell-attester",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "CLI for the Maker Spell Attestation contracts",
   "repository": {
     "type": "git",
