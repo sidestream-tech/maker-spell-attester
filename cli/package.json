@@ -4,7 +4,7 @@
   "description": "CLI for the Maker Spell Attestation contracts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sidestream-tech/maker-spell-attestation.git"
+    "url": "git+https://github.com/sidestream-tech/maker-spell-attester.git"
   },
   "type": "module",
   "main": "./index.js",
