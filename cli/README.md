@@ -6,8 +6,8 @@ The command-line tool to assist with [on-chain attestation of MakerDAO spells](h
 
 ### Pre-requirements
 - Installed [node.js](https://nodejs.org/en/download/package-manager)
-- RPC url of the supported chain (will be read from the `RPC_URL` environment variable)
-- Private key of your EOA wallet (will be read from the `PRIVATE_KEY` environment variable)
+- [Optional] RPC url of the supported chain (will be read from the `RPC_URL` environment variable)
+- [Required for submitting transactions] Private key of your EOA wallet (will be read from the `PRIVATE_KEY` environment variable)
 
 ### Usage
 The CLI can be directly executed without installation via `npx spell-attester` or installed on your machine via `npm i spell-attester@latest -g` and then executed via `spell-attester`. It is advised to install specific version of the package and then review its code before using it.
