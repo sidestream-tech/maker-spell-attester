@@ -1,7 +1,7 @@
 import ethers from 'ethers';
 import { NO_EXPIRATION, ZERO_ADDRESS } from '@ethereum-attestation-service/eas-sdk';
 import { getEasAttesterContract, getEasRegistryContract, getSpellAttesterContract } from './contracts.js';
-import { getConfig, getDateFromBlockNumber } from './network.js';
+import { getConfig, getDateFromBlockNumber, getSigner } from './network.js';
 import { decodeAttestationData, encodeAttestationData } from './helpers.js';
 
 const generateAttestationUrl = async function (provider, attestationId) {
@@ -34,7 +34,7 @@ export const createAttestation = async function (provider, name, options) {
     const schemaId = await spellAttester.schemaNameToSchemaId(ethers.utils.formatBytes32String(name));
     const easRegistry = await getEasRegistryContract(provider);
     const schemaRecord = await easRegistry.getSchema({ uid: schemaId });
-    const easAttester = await getEasAttesterContract(provider);
+    const easAttester = (await getEasAttesterContract(provider)).connect(getSigner(provider));
 
     // Encode options based on the types
     const attestationData = encodeAttestationData(schemaRecord.schema, options);
@@ -63,7 +63,7 @@ export const createAttestation = async function (provider, name, options) {
 
 export const revokeAttestation = async function (provider, attestationId) {
     // Get relevant data
-    const easAttester = await getEasAttesterContract(provider);
+    const easAttester = (await getEasAttesterContract(provider)).connect(getSigner(provider));
     const attestation = await getAttestation(provider, attestationId);
 
     // Revoke attestation
