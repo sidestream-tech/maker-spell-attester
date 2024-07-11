@@ -194,10 +194,14 @@ describe('Attestation creation', () => {
     });
 
     it('Should return spell status', async () => {
+        // setup: remove private key to test it works without it
+        process.env.PRIVATE_KEY = undefined;
         const spellStatus = await getSpellStatus(hardhat.ethers.provider, spellAttestationData.payloadId);
         expect(spellStatus.message).to.equal('Spell is not found or not ready: "SpellAttester/spell-not-yet-reviewed"');
         expect(spellStatus.events.length).to.be.gte(7);
         console.table(spellStatus.events.map(formatAttestationEvent));
+        // undo setup
+        process.env.PRIVATE_KEY = HARDHAT_PRIVATE_KEY;
     });
 
     it('Should return all attestations by one user', async () => {
