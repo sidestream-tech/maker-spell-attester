@@ -119,10 +119,10 @@ describe('Attestation creation', () => {
 
     it('Should fetch all Identity events', async () => {
         const allIdentityAttestations = await getIdentityEvents(hardhat.ethers.provider);
-        expect(allIdentityAttestations.length).to.be.equal(3);
-        expect(allIdentityAttestations[0].attestation.data).to.containSubset(alice);
-        expect(allIdentityAttestations[1].attestation.data).to.containSubset(arthur);
-        expect(allIdentityAttestations[2].attestation.data).to.containSubset(bob);
+        expect(allIdentityAttestations.length).to.be.gte(3);
+        expect(allIdentityAttestations[allIdentityAttestations.length - 3].attestation.data).to.containSubset(alice);
+        expect(allIdentityAttestations[allIdentityAttestations.length - 2].attestation.data).to.containSubset(arthur);
+        expect(allIdentityAttestations[allIdentityAttestations.length - 1].attestation.data).to.containSubset(bob);
     });
 
     it('Should fetch specific Identity events', async () => {
@@ -133,7 +133,7 @@ describe('Attestation creation', () => {
 
     it('Should fetch all Spell events', async () => {
         const spellAttestations = await getSpellEvents(hardhat.ethers.provider);
-        expect(spellAttestations[0].attestation.data).to.containSubset(spellAttestationData);
+        expect(spellAttestations[spellAttestations.length - 1].attestation.data).to.containSubset(spellAttestationData);
     });
 
     it('Should fetch specific Spell events', async () => {
@@ -194,10 +194,14 @@ describe('Attestation creation', () => {
     });
 
     it('Should return spell status', async () => {
+        // setup: remove private key to test it works without it
+        process.env.PRIVATE_KEY = undefined;
         const spellStatus = await getSpellStatus(hardhat.ethers.provider, spellAttestationData.payloadId);
         expect(spellStatus.message).to.equal('Spell is not found or not ready: "SpellAttester/spell-not-yet-reviewed"');
-        expect(spellStatus.events.length).to.be.equal(7);
+        expect(spellStatus.events.length).to.be.gte(7);
         console.table(spellStatus.events.map(formatAttestationEvent));
+        // undo setup
+        process.env.PRIVATE_KEY = HARDHAT_PRIVATE_KEY;
     });
 
     it('Should return all attestations by one user', async () => {

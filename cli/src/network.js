@@ -4,10 +4,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ethers from 'ethers';
 
-export const __filename = fileURLToPath(import.meta.url);
-export const __dirname = dirname(__filename);
-export const envPath = join(__dirname, '..', '.env');
-export const configPath = join(__dirname, '..', 'config.json');
+const DEFAULT_RPC_URL = 'https://sepolia.gateway.tenderly.co/30jHDuRkVZiiCMsqy8TH04';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const configPath = join(__dirname, '..', 'config.json');
+export const envPath = join(process.cwd(), '.env');
 
 export const getConfig = async function (signerOrProvider) {
     const networkData = await signerOrProvider.getNetwork();
@@ -19,17 +21,15 @@ export const getConfig = async function (signerOrProvider) {
 };
 
 export const getProvider = async function () {
-    if (!process.env.RPC_URL) {
-        throw new Error('Please provide RPC_URL env variable to enable interactions with blockchain');
-    }
+    const RPC_URL = process.env.RPC_URL || DEFAULT_RPC_URL;
     const provider = new ethers.providers.JsonRpcProvider({
-        url: process.env.RPC_URL,
+        url: RPC_URL,
         timeout: 1000,
     });
     try {
         await provider.getNetwork();
     } catch (error) {
-        throw new Error(`Provided RPC_URL ("${process.env.RPC_URL}") is incorrect: ${error.reason}`);
+        throw new Error(`Either no connection, or RPC_URL ("${RPC_URL}") is incorrect: ${error.reason}`);
     }
     return provider;
 };

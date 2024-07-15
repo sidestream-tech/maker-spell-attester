@@ -1,10 +1,10 @@
 {
   "name": "spell-attester",
-  "version": "0.0.9",
+  "version": "0.0.14",
   "description": "CLI for the Maker Spell Attestation contracts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sidestream-tech/maker-spell-attestation.git"
+    "url": "git+https://github.com/sidestream-tech/maker-spell-attester.git"
   },
   "type": "module",
   "main": "./index.js",

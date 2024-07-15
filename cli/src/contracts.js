@@ -1,6 +1,6 @@
 import ethers from 'ethers';
 import { EAS, SchemaRegistry } from '@ethereum-attestation-service/eas-sdk';
-import { getConfig, getSigner } from './network.js';
+import { getConfig } from './network.js';
 
 const ABIs = {
     easAttesterLike: [
@@ -31,11 +31,11 @@ export const getSpellAttesterContract = async function (provider) {
 export const getEasRegistryContract = async function (provider) {
     const spellAttester = await getSpellAttesterContract(provider);
     const easRegistryAddress = await spellAttester.easRegistry();
-    return new SchemaRegistry(easRegistryAddress).connect(getSigner(provider));
+    return new SchemaRegistry(easRegistryAddress).connect(provider);
 };
 
 export const getEasAttesterContract = async function (provider) {
     const spellAttester = await getSpellAttesterContract(provider);
     const easAttesterAddress = await spellAttester.easAttester();
-    return new EAS(easAttesterAddress).connect(getSigner(provider));
+    return new EAS(easAttesterAddress).connect(provider);
 };
