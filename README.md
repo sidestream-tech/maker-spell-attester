@@ -87,3 +87,11 @@ Not yet deployed
 - `MAINNET_RPC_URL` (required for testing on mainnet)
 - `ETHERSCAN_API_KEY` (required for contract deployment)
 - `PRIVATE_KEY` (required for contract deployment)
+
+### Potential next steps
+- [ ] Make identity and spell attestations revokable by all admins
+- [ ] Make `StellAttester` contract upgradable to preserve the same address between upgrades
+    - [ ] Potentially combine all resolvers into a single address
+- [ ] Separate governance facilitator rights from rights to `file` a schema
+- [ ] Add composability of Spell attestations (support for SubDAOs)
+- [ ] CLI: Provide possibility to override `SpellAttester` address
