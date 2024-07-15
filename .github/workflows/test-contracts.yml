@@ -44,7 +44,7 @@ jobs:
 
       - name: Check deploy script
         run: |
-          forge script script/Deploy.s.sol:Deploy --fork-url mainnet
+          forge script script/Deploy.s.sol:Deploy --fork-url sepolia
 
   natspec:
     name: natspec check
