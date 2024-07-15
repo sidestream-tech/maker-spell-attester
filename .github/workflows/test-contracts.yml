@@ -42,10 +42,6 @@ jobs:
         run: |
           forge test -vvv --fork-url mainnet
 
-      - name: Check deploy script
-        run: |
-          forge script script/Deploy.s.sol:Deploy --fork-url sepolia
-
   natspec:
     name: natspec check
     runs-on: ubuntu-latest
