@@ -6,7 +6,7 @@ import { hideBin } from 'yargs/helpers';
 import { envPath, getProvider, getSigner } from './src/network.js';
 import { getVariables, setVariable } from './src/configure.js';
 import { createAttestation, getAtttestationEventsByAttester, getSpellEvents, getSpellStatus, revokeAttestation } from './src/attestations.js';
-import { formatAttestationEvent, prettyPrint } from './src/helpers.js';
+import { formatAttestationEvent, handleErrors, prettify } from './src/helpers.js';
 
 yargs(hideBin(process.argv))
     .parserConfiguration({
@@ -39,19 +39,13 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => prettyPrint(async ({ printSuccess }) => {
+        async argv => handleErrors(async ({ printSuccess }) => {
             const options = {
                 userAddress: argv.userAddress,
                 userPseudonym: argv.userPseudonym,
                 teamName: argv.teamName,
             };
-            console.info(
-                `Attempting to create identity attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
+            console.info(`Attempting to create identity attestation for ${prettify(options)}...`);
             const { url } = await createAttestation(await getProvider(), 'identity', options);
             printSuccess(`Successfully created new identity attestation: ${url}`);
         }),
@@ -90,20 +84,14 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => prettyPrint(async ({ printSuccess }) => {
+        async argv => handleErrors(async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 crafter: argv.crafter,
                 reviewerA: argv.reviewerA,
                 reviewerB: argv.reviewerB,
             };
-            console.info(
-                `Attempting to create Spell attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
+            console.info(`Attempting to create Spell attestation for ${prettify(options)}...`);
             const { url } = await createAttestation(await getProvider(), 'spell', options);
             printSuccess(`Successfully created new Spell attestation: ${url}`);
         }),
@@ -135,19 +123,13 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => prettyPrint(async ({ printSuccess }) => {
+        async argv => handleErrors(async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 payloadAddress: argv.payloadAddress,
                 payloadHash: argv.payloadHash,
             };
-            console.info(
-                `Attempting to create deployment attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
+            console.info(`Attempting to create deployment attestation for ${prettify(options)}...`);
             const { url } = await createAttestation(await getProvider(), 'deployment', options);
             printSuccess(`Successfully created new deployment attestation: ${url}`);
         }),
@@ -156,7 +138,7 @@ yargs(hideBin(process.argv))
         'revoke [attestation-uid]',
         'Revoke existing attestation',
         () => {},
-        async argv => prettyPrint(async ({ printSuccess }) => {
+        async argv => handleErrors(async ({ printSuccess }) => {
             const attestationUid = argv.attestationUid;
             if (!attestationUid) {
                 console.info(`No [attestation-uid] provided, attempting to fetch all attestations that are possible to revoke...`);
@@ -178,7 +160,7 @@ yargs(hideBin(process.argv))
         'status [payload-id]',
         'Get status of existing spell',
         () => {},
-        async argv => prettyPrint(async ({ printSuccess, printError }) => {
+        async argv => handleErrors(async ({ printSuccess, printError }) => {
             const payloadId = argv.payloadId;
             if (!payloadId) {
                 console.info(`Attempting to fetch all previously attested Spells...`);
@@ -191,7 +173,6 @@ yargs(hideBin(process.argv))
                 console.table(spellAttestations.map(formatAttestationEvent));
                 return;
             }
-
             console.info(`Attempting to fetch current status of ${payloadId}...`);
             const spellStatus = await getSpellStatus(await getProvider(), payloadId);
             if (!spellStatus.events.length) {
@@ -210,12 +191,12 @@ yargs(hideBin(process.argv))
         'configure [key] [value]',
         'Configure env variables',
         () => {},
-        async argv => prettyPrint(async ({ printSuccess }) => {
+        async argv => handleErrors(async ({ printSuccess }) => {
             if (!argv.key || !argv.value) {
                 console.info('To configure a variable, please provide its [key] and [value], for example:');
                 console.info('npx spell-attester configure RPC_URL http://...');
                 console.info(`\nCurrently set variables (found in "${envPath}"):`);
-                console.info(JSON.stringify(getVariables(envPath), null, 4));
+                console.info(prettify(getVariables(envPath)));
                 return;
             }
             setVariable(envPath, argv.key, argv.value);

@@ -2,7 +2,11 @@ import process from 'node:process';
 import chalk from 'chalk';
 import ethers from 'ethers';
 
-export const prettyPrint = async function (fn) {
+export const prettify = function (object) {
+    return JSON.stringify(object, null, 2);
+};
+
+export const handleErrors = async function (fn) {
     const printSuccess = message => console.info(chalk.bold.green(message));
     const printError = message => console.info(chalk.bold.red(message));
     try {
