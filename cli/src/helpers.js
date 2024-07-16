@@ -1,4 +1,30 @@
+import process from 'node:process';
+import chalk from 'chalk';
 import ethers from 'ethers';
+
+export const prettyPrint = async function (fn) {
+    const printSuccess = message => console.info(chalk.bold.green(message));
+    const printError = message => console.info(chalk.bold.red(message));
+    try {
+        await fn({ printSuccess, printError });
+    } catch (error) {
+        printError(error);
+        process.exit(1);
+    }
+};
+
+export const decodeErrorMessage = function (error) {
+    const calldata = error?.error?.error?.error?.data;
+    if (calldata) {
+        const reasonString = ethers.utils.defaultAbiCoder.decode(
+            ['string'],
+            ethers.utils.hexDataSlice(calldata, 4),
+        )[0];
+        return `execution reverted: ${reasonString}`;
+    } else {
+        return error?.error?.reason || error?.reason || error;
+    }
+};
 
 export const decodeAttestationData = function (schema, attestation) {
     const optionTypes = schema.split(',').map(e => e.trim());

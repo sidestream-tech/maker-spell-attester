@@ -2,7 +2,7 @@ import ethers from 'ethers';
 import { NO_EXPIRATION, ZERO_ADDRESS } from '@ethereum-attestation-service/eas-sdk';
 import { getEasAttesterContract, getEasRegistryContract, getSpellAttesterContract } from './contracts.js';
 import { getConfig, getDateFromBlockNumber, getSigner } from './network.js';
-import { decodeAttestationData, encodeAttestationData } from './helpers.js';
+import { decodeAttestationData, decodeErrorMessage, encodeAttestationData } from './helpers.js';
 
 const generateAttestationUrl = async function (provider, attestationId) {
     const config = await getConfig(provider);
@@ -57,7 +57,7 @@ export const createAttestation = async function (provider, name, options) {
             url: await generateAttestationUrl(provider, attestationId),
         };
     } catch (error) {
-        throw new Error(`Attestation can not be created: ${error?.error?.reason || error?.reason || error}`);
+        throw new Error(`Attestation can not be created: ${decodeErrorMessage(error)}`);
     }
 };
 
@@ -83,7 +83,7 @@ export const revokeAttestation = async function (provider, attestationId) {
             url: await generateAttestationUrl(provider, attestationId),
         };
     } catch (error) {
-        throw new Error(`Attestation can not be revoked: ${error?.error?.reason || error?.reason}`);
+        throw new Error(`Attestation can not be revoked: ${decodeErrorMessage(error)}`);
     }
 };
 
