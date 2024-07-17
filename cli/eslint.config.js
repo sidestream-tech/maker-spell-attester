@@ -12,7 +12,7 @@ export default antfu({
         'no-console': [
             'error',
             {
-                allow: ['info', 'warn', 'error', 'table', 'trace'],
+                allow: ['info', 'warn', 'error', 'table'],
             },
         ],
     },
