@@ -6,7 +6,7 @@ import { hideBin } from 'yargs/helpers';
 import { envPath, getProvider, getSigner } from './src/network.js';
 import { getVariables, setVariable } from './src/configure.js';
 import { createAttestation, getAtttestationEventsByAttester, getSpellEvents, getSpellStatus, revokeAttestation } from './src/attestations.js';
-import { formatAttestationEvent } from './src/helpers.js';
+import { formatAttestationEvent, handleErrors, prettify } from './src/helpers.js';
 
 yargs(hideBin(process.argv))
     .parserConfiguration({
@@ -39,22 +39,16 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 userAddress: argv.userAddress,
                 userPseudonym: argv.userPseudonym,
                 teamName: argv.teamName,
             };
-            console.info(
-                `Attempting to create identity attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
-            const { url } = await createAttestation(await getProvider(), 'identity', options);
-            console.info(`Successfully created new identity attestation: ${url}`);
-        },
+            console.info(`Attempting to create identity attestation for ${prettify(options)}...`);
+            const { url } = await createAttestation(await getProvider(), 'identity', options, argv.verbose);
+            printSuccess(`Successfully created new identity attestation: ${url}`);
+        }),
     )
     .command(
         'create-spell',
@@ -90,23 +84,17 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 crafter: argv.crafter,
                 reviewerA: argv.reviewerA,
                 reviewerB: argv.reviewerB,
             };
-            console.info(
-                `Attempting to create Spell attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
-            const { url } = await createAttestation(await getProvider(), 'spell', options);
-            console.info(`Successfully created new Spell attestation: ${url}`);
-        },
+            console.info(`Attempting to create Spell attestation for ${prettify(options)}...`);
+            const { url } = await createAttestation(await getProvider(), 'spell', options, argv.verbose);
+            printSuccess(`Successfully created new Spell attestation: ${url}`);
+        }),
     )
     .command(
         'create-deployment',
@@ -135,28 +123,22 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 payloadAddress: argv.payloadAddress,
                 payloadHash: argv.payloadHash,
             };
-            console.info(
-                `Attempting to create deployment attestation for ${JSON.stringify(
-                    options,
-                    null,
-                    2,
-                )}...`,
-            );
-            const { url } = await createAttestation(await getProvider(), 'deployment', options);
-            console.info(`Successfully created new deployment attestation: ${url}`);
-        },
+            console.info(`Attempting to create deployment attestation for ${prettify(options)}...`);
+            const { url } = await createAttestation(await getProvider(), 'deployment', options, argv.verbose);
+            printSuccess(`Successfully created new deployment attestation: ${url}`);
+        }),
     )
     .command(
         'revoke [attestation-uid]',
         'Revoke existing attestation',
         () => {},
-        async (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const attestationUid = argv.attestationUid;
             if (!attestationUid) {
                 console.info(`No [attestation-uid] provided, attempting to fetch all attestations that are possible to revoke...`);
@@ -170,53 +152,62 @@ yargs(hideBin(process.argv))
                 return;
             }
             console.info(`Attempting to revoke attestation ${attestationUid}...`);
-            const { url } = await revokeAttestation(await getProvider(), attestationUid);
-            console.info(`Successfully revoked attestation: ${url}`);
-        },
+            const { url } = await revokeAttestation(await getProvider(), attestationUid, argv.verbose);
+            printSuccess(`Successfully revoked attestation: ${url}`);
+        }),
     )
     .command(
         'status [payload-id]',
         'Get status of existing spell',
         () => {},
-        async (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess, printError }) => {
             const payloadId = argv.payloadId;
-            if (payloadId) {
-                console.info(`Attempting to fetch current status of ${payloadId}...`);
-                const spellStatus = await getSpellStatus(await getProvider(), payloadId);
-                console.info(spellStatus.message);
-                if (!spellStatus.events.length) {
-                    console.info(`No previous attestation events found for "${payloadId}"`);
-                } else {
-                    console.table(spellStatus.events.map(formatAttestationEvent));
+            if (!payloadId) {
+                console.info(`Attempting to fetch all previously attested Spells...`);
+                const spellAttestations = await getSpellEvents(await getProvider());
+                if (spellAttestations.length === 0) {
+                    console.info(`No previous Spell attestation events found`);
+                    return;
                 }
+                console.info(`Found the following Spell attestation events:`);
+                console.table(spellAttestations.map(formatAttestationEvent));
                 return;
             }
-            console.info(`Attempting to fetch all previously attested Spells...`);
-            const spellAttestations = await getSpellEvents(await getProvider());
-            if (spellAttestations.length === 0) {
-                console.info(`No previous Spell attestation events found`);
-                return;
+            console.info(`Attempting to fetch current status of ${payloadId}...`);
+            const spellStatus = await getSpellStatus(await getProvider(), payloadId);
+            if (!spellStatus.events.length) {
+                console.info(`No previous attestation events found for "${payloadId}"`);
+            } else {
+                console.table(spellStatus.events.map(formatAttestationEvent));
             }
-            console.info(`Found the following Spell attestation events:`);
-            console.table(spellAttestations.map(formatAttestationEvent));
-        },
+            if (spellStatus.reason) {
+                printError(spellStatus.message);
+            } else {
+                printSuccess(spellStatus.message);
+            }
+        }),
     )
     .command(
         'configure [key] [value]',
         'Configure env variables',
         () => {},
-        (argv) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             if (!argv.key || !argv.value) {
                 console.info('To configure a variable, please provide its [key] and [value], for example:');
                 console.info('npx spell-attester configure RPC_URL http://...');
                 console.info(`\nCurrently set variables (found in "${envPath}"):`);
-                console.info(JSON.stringify(getVariables(envPath), null, 4));
+                console.info(prettify(getVariables(envPath)));
                 return;
             }
             setVariable(envPath, argv.key, argv.value);
-            console.info(`Variable "${argv.key}" was successfully saved into "${envPath}"`);
-        },
+            printSuccess(`Variable "${argv.key}" was successfully saved into "${envPath}"`);
+        }),
     )
     .strictCommands()
     .demandCommand(1)
+    .option('verbose', {
+        type: 'boolean',
+        description: 'Run with verbose logging',
+        requiresArg: false,
+    })
     .parse();
