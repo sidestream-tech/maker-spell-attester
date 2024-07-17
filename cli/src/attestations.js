@@ -28,7 +28,7 @@ export const getAttestationData = async function (provider, attestationId) {
     };
 };
 
-export const createAttestation = async function (provider, name, options) {
+export const createAttestation = async function (provider, name, options, verbose) {
     // Get relevant data
     const spellAttester = await getSpellAttesterContract(provider);
     const schemaId = await spellAttester.schemaNameToSchemaId(ethers.utils.formatBytes32String(name));
@@ -57,11 +57,14 @@ export const createAttestation = async function (provider, name, options) {
             url: await generateAttestationUrl(provider, attestationId),
         };
     } catch (error) {
+        if (verbose) {
+            console.error(error);
+        }
         throw new Error(`Attestation can not be created: ${decodeErrorMessage(error)}`);
     }
 };
 
-export const revokeAttestation = async function (provider, attestationId) {
+export const revokeAttestation = async function (provider, attestationId, verbose) {
     // Get relevant data
     const easAttester = (await getEasAttesterContract(provider)).connect(getSigner(provider));
     const attestation = await getAttestation(provider, attestationId);
@@ -83,6 +86,9 @@ export const revokeAttestation = async function (provider, attestationId) {
             url: await generateAttestationUrl(provider, attestationId),
         };
     } catch (error) {
+        if (verbose) {
+            console.error(error);
+        }
         throw new Error(`Attestation can not be revoked: ${decodeErrorMessage(error)}`);
     }
 };

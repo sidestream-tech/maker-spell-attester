@@ -6,26 +6,29 @@ export const prettify = function (object) {
     return JSON.stringify(object, null, 2);
 };
 
-export const handleErrors = async function (fn) {
+export const handleErrors = async function (verbose, fn) {
     const printSuccess = message => console.info(chalk.bold.green(message));
     const printError = message => console.info(chalk.bold.red(message));
     try {
         await fn({ printSuccess, printError });
     } catch (error) {
+        if (verbose) {
+            console.error(error);
+        }
         printError(error);
         process.exit(1);
     }
 };
 
 export const decodeErrorMessage = function (error) {
-    const calldata = error?.error?.error?.error?.data;
-    if (calldata) {
+    try {
+        const calldata = error?.error?.error?.error?.data;
         const reasonString = ethers.utils.defaultAbiCoder.decode(
             ['string'],
             ethers.utils.hexDataSlice(calldata, 4),
         )[0];
         return `execution reverted: ${reasonString}`;
-    } else {
+    } catch (e) {
         return error?.error?.reason || error?.reason || error;
     }
 };

@@ -39,14 +39,14 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => handleErrors(async ({ printSuccess }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 userAddress: argv.userAddress,
                 userPseudonym: argv.userPseudonym,
                 teamName: argv.teamName,
             };
             console.info(`Attempting to create identity attestation for ${prettify(options)}...`);
-            const { url } = await createAttestation(await getProvider(), 'identity', options);
+            const { url } = await createAttestation(await getProvider(), 'identity', options, argv.verbose);
             printSuccess(`Successfully created new identity attestation: ${url}`);
         }),
     )
@@ -84,7 +84,7 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => handleErrors(async ({ printSuccess }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 crafter: argv.crafter,
@@ -92,7 +92,7 @@ yargs(hideBin(process.argv))
                 reviewerB: argv.reviewerB,
             };
             console.info(`Attempting to create Spell attestation for ${prettify(options)}...`);
-            const { url } = await createAttestation(await getProvider(), 'spell', options);
+            const { url } = await createAttestation(await getProvider(), 'spell', options, argv.verbose);
             printSuccess(`Successfully created new Spell attestation: ${url}`);
         }),
     )
@@ -123,14 +123,14 @@ yargs(hideBin(process.argv))
                     requiresArg: true,
                 });
         },
-        async argv => handleErrors(async ({ printSuccess }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const options = {
                 payloadId: argv.payloadId,
                 payloadAddress: argv.payloadAddress,
                 payloadHash: argv.payloadHash,
             };
             console.info(`Attempting to create deployment attestation for ${prettify(options)}...`);
-            const { url } = await createAttestation(await getProvider(), 'deployment', options);
+            const { url } = await createAttestation(await getProvider(), 'deployment', options, argv.verbose);
             printSuccess(`Successfully created new deployment attestation: ${url}`);
         }),
     )
@@ -138,7 +138,7 @@ yargs(hideBin(process.argv))
         'revoke [attestation-uid]',
         'Revoke existing attestation',
         () => {},
-        async argv => handleErrors(async ({ printSuccess }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             const attestationUid = argv.attestationUid;
             if (!attestationUid) {
                 console.info(`No [attestation-uid] provided, attempting to fetch all attestations that are possible to revoke...`);
@@ -152,7 +152,7 @@ yargs(hideBin(process.argv))
                 return;
             }
             console.info(`Attempting to revoke attestation ${attestationUid}...`);
-            const { url } = await revokeAttestation(await getProvider(), attestationUid);
+            const { url } = await revokeAttestation(await getProvider(), attestationUid, argv.verbose);
             printSuccess(`Successfully revoked attestation: ${url}`);
         }),
     )
@@ -160,7 +160,7 @@ yargs(hideBin(process.argv))
         'status [payload-id]',
         'Get status of existing spell',
         () => {},
-        async argv => handleErrors(async ({ printSuccess, printError }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess, printError }) => {
             const payloadId = argv.payloadId;
             if (!payloadId) {
                 console.info(`Attempting to fetch all previously attested Spells...`);
@@ -191,7 +191,7 @@ yargs(hideBin(process.argv))
         'configure [key] [value]',
         'Configure env variables',
         () => {},
-        async argv => handleErrors(async ({ printSuccess }) => {
+        async argv => handleErrors(argv.verbose, async ({ printSuccess }) => {
             if (!argv.key || !argv.value) {
                 console.info('To configure a variable, please provide its [key] and [value], for example:');
                 console.info('npx spell-attester configure RPC_URL http://...');
@@ -205,4 +205,9 @@ yargs(hideBin(process.argv))
     )
     .strictCommands()
     .demandCommand(1)
+    .option('verbose', {
+        type: 'boolean',
+        description: 'Run with verbose logging',
+        requiresArg: false,
+    })
     .parse();
