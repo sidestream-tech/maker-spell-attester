@@ -28,7 +28,7 @@ export const decodeErrorMessage = function (error) {
             ethers.utils.hexDataSlice(calldata, 4),
         )[0];
         return `execution reverted: ${reasonString}`;
-    } catch (e) {
+    } catch {
         return error?.error?.reason || error?.reason || error;
     }
 };
