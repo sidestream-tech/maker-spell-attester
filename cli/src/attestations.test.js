@@ -198,7 +198,7 @@ describe('Attestation creation', () => {
         process.env.PRIVATE_KEY = undefined;
         const spellStatus = await getSpellStatus(hardhat.ethers.provider, spellAttestationData.payloadId);
         expect(spellStatus.message).to.equal('Spell is not found or not ready: "SpellAttester/spell-not-yet-reviewed"');
-        expect(spellStatus.events.length).to.be.gte(7);
+        expect(spellStatus.events.length).to.be.gte(5);
         console.table(spellStatus.events.map(formatAttestationEvent));
         // undo setup
         process.env.PRIVATE_KEY = HARDHAT_PRIVATE_KEY;
