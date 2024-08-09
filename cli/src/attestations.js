@@ -176,9 +176,9 @@ export const getSpellStatus = async function (provider, payloadId) {
     }
     const spellEvents = await getSpellEvents(provider, { payloadId });
     const allSpellMemberPseudonyms = [
-        ...spellEvents.map(a => a.data.crafter),
-        ...spellEvents.map(a => a.data.reviewerA),
-        ...spellEvents.map(a => a.data.reviewerB),
+        ...spellEvents.map(a => a.attestation.data.crafter),
+        ...spellEvents.map(a => a.attestation.data.reviewerA),
+        ...spellEvents.map(a => a.attestation.data.reviewerB),
     ];
     const uniqueSpellMemberPseudonyms = [...new Set(allSpellMemberPseudonyms)];
     const memberEvents = await Promise.all(uniqueSpellMemberPseudonyms.map((userPseudonym) => {
